@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>城市论坛 - 智慧城市平台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Microsoft YaHei', sans-serif;
+        background: #f5f6fa;
+        color: #333;
+        padding: 20px;
+    }
+    .forum-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .forum-header {
+        background: linear-gradient(135deg, #1a237e, #283593);
+        color: white;
+        padding: 25px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .forum-header h1 {
+        font-size: 1.8em;
+    }
+    .btn {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+    .btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+    }
+    .forum-tabs {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+    .tab {
+        flex: 1;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        color: #495057;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+    }
+    .tab.active {
+        color: #1a237e;
+        border-bottom-color: #1a237e;
+        background: white;
+    }
+    .posts-container {
+        padding: 20px;
+        min-height: 500px;
+    }
+    .post-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .post-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+    .post-title {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+    .post-meta {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    .official-badge {
+        background: #e74c3c;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    .post-content {
+        color: #495057;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .post-stats {
+        display: flex;
+        gap: 20px;
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    .post-detail {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .back-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+    .comments-section {
+        margin-top: 30px;
+    }
+    .comment {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .comment-author {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    .comment-time {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    .comment-content {
+        color: #495057;
+        line-height: 1.5;
+    }
+    .reply-form {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    .reply-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        resize: vertical;
+        min-height: 80px;
+    }
+    .submit-reply {
+        background: #1a237e;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+<div class="forum-container">
+  <div class="forum-header">
+    <h1>🏛️ 城市论坛</h1>
+    <button class="btn" onclick="showPostForm()">📝 发布帖子</button>
+  </div>
+
+  <div class="forum-tabs">
+    <div class="tab active" onclick="switchTab('official')">官方发布</div>
+    <div class="tab" onclick="switchTab('discussion')">市民讨论</div>
+    <div class="tab" onclick="switchTab('suggestions')">建言献策</div>
+  </div>
+
+  <div id="posts-container" class="posts-container">
+    <!-- 帖子内容通过JS动态加载 -->
+  </div>
+</div>
+
+<script>
+  // 模拟论坛数据
+  const forumData = {
+      posts: [
+          {
+              id: 1,
+              type: 'official',
+              title: '关于解放碑商圈改造升级的民意征集',
+              author: '重庆市规划局',
+              authorType: 'official',
+              content: '为提升解放碑商圈的整体形象和功能，我市计划对解放碑区域进行综合改造。现面向广大市民征集意见和建议，包括但不限于：商业业态调整、交通组织优化、公共空间设计、文化元素融入等方面。欢迎各位市民踊跃建言！',
+              time: '2024-10-25 09:30:00',
+              likes: 156,
+              comments: 89,
+              views: 2345
+          },
+          {
+              id: 2,
+              type: 'official',
+              title: '2024年城市绿化提升工程启动公告',
+              author: '市政园林局',
+              authorType: 'official',
+              content: '为进一步改善城市生态环境，我市将于2024年11月启动城市绿化提升工程。计划新增城市绿地面积50万平方米，改造提升老旧公园8个，建设社区口袋公园25个。具体施工安排将提前一周在社区公告栏公示。',
+              time: '2024-10-24 14:20:00',
+              likes: 234,
+              comments: 67,
+              views: 1890
+          },
+          {
+              id: 3,
+              type: 'discussion',
+              title: '大家觉得重庆哪里的夜景最美？',
+              author: '摄影爱好者小李',
+              authorType: 'citizen',
+              content: '作为一个摄影爱好者，我经常在重庆各处拍夜景。个人觉得南山一棵树视角很棒，但最近人太多了。洪崖洞虽然经典但游客太多。大家有没有其他推荐的夜景拍摄点？',
+              time: '2024-10-26 19:15:00',
+              likes: 89,
+              comments: 34,
+              views: 567
+          },
+          {
+              id: 4,
+              type: 'discussion',
+              title: '小区垃圾分类实施情况交流',
+              author: '环保达人张阿姨',
+              authorType: 'citizen',
+              content: '我们小区实施垃圾分类已经三个月了，想和大家交流一下经验。我们小区现在设置了四分类垃圾桶，但很多邻居还是不太会正确分类。大家有什么好的推广方法吗？',
+              time: '2024-10-25 16:45:00',
+              likes: 67,
+              comments: 42,
+              views: 789
+          },
+          {
+              id: 5,
+              type: 'suggestions',
+              title: '建议在轨道交通站点增设共享单车停放区',
+              author: '通勤族小王',
+              authorType: 'citizen',
+              content: '每天坐轨道交通通勤，发现很多站点出口共享单车乱停乱放严重。建议在主要轨道交通站点周边规划专门的共享单车停放区，既能规范停车秩序，又能方便市民接驳。',
+              time: '2024-10-26 08:30:00',
+              likes: 178,
+              comments: 56,
+              views: 1234
+          },
+          {
+              id: 6,
+              type: 'suggestions',
+              title: '关于优化老年人社区服务的建议',
+              author: '社区志愿者刘老师',
+              authorType: 'citizen',
+              content: '随着老龄化程度加深，建议在社区层面加强为老服务：1. 开设老年食堂解决用餐难 2. 组织志愿者定期探访独居老人 3. 开展适合老人的文体活动 4. 提供简单的健康监测服务',
+              time: '2024-10-24 10:15:00',
+              likes: 245,
+              comments: 78,
+              views: 1567
+          }
+      ],
+      comments: {
+          1: [
+              { author: '市民张先生', content: '建议在解放碑增加更多休息座椅，现在走累了都没地方坐', time: '2024-10-25 10:20:00' },
+              { author: '游客李女士', content: '希望保留重庆特色建筑，不要过度商业化', time: '2024-10-25 11:35:00' },
+              { author: '商业经营者王总', content: '支持改造，但希望能给现有商户合理的过渡期', time: '2024-10-25 14:15:00' }
+          ],
+          5: [
+              { author: '上班族小陈', content: '这个建议太好了！我每天在红旗河沟站都要找半天停车位', time: '2024-10-26 09:45:00' },
+              { author: '交通爱好者', content: '建议学习北京上海的经验，设置电子围栏技术', time: '2024-10-26 12:30:00' }
+          ]
+      }
+  };
+
+  let currentTab = 'official';
+  let currentPostId = null;
+
+  // 初始化论坛
+  function initForum() {
+      loadPosts();
+  }
+
+  // 加载帖子列表
+  function loadPosts() {
+      const container = document.getElementById('posts-container');
+      const posts = forumData.posts.filter(post => post.type === currentTab);
+
+      if (posts.length === 0) {
+          container.innerHTML = `
+              <div class="empty-state">
+                  <h3>📭 暂无帖子</h3>
+                  <p>当前分类下还没有帖子，快来发布第一个吧！</p>
+              </div>
+          `;
+          return;
+      }
+
+      container.innerHTML = posts.map(post => `
+          <div class="post-card" onclick="showPostDetail(${post.id})">
+              <div class="post-header">
+                  <div style="flex: 1;">
+                      <div class="post-title">
+                          ${post.title}
+                          ${post.authorType === 'official' ? '<span class="official-badge" style="margin-left: 10px;">官方</span>' : ''}
+                      </div>
+                      <div class="post-meta">
+                          作者：${post.author} • ${post.time}
+                      </div>
+                  </div>
+              </div>
+              <div class="post-content">${post.content}</div>
+              <div class="post-stats">
+                  <span>👍 ${post.likes}</span>
+                  <span>💬 ${post.comments}</span>
+                  <span>👁️ ${post.views}</span>
+              </div>
+          </div>
+      `).join('');
+  }
+
+  // 显示帖子详情
+  function showPostDetail(postId) {
+      const post = forumData.posts.find(p => p.id === postId);
+      const comments = forumData.comments[postId] || [];
+
+      document.getElementById('posts-container').innerHTML = `
+          <button class="back-btn" onclick="loadPosts()">⬅️ 返回列表</button>
+          <div class="post-detail">
+              <div class="post-header">
+                  <div style="flex: 1;">
+                      <div class="post-title">
+    ${post.title}
+    ${post.authorType === 'official' ? '<span class="official-badge" style="margin-left: 10px;">官方</span>' : ''}
+    ${post.isOfficial ? '<span class="official-badge" style="margin-left: 10px; background:#27ae60;">官方发布</span>' : ''}
+</div>
+                      <div class="post-meta">
+                          作者：${post.author} • ${post.time}
+                      </div>
+                  </div>
+              </div>
+              <div class="post-content" style="-webkit-line-clamp: unset; display: block;">
+                  ${post.content}
+              </div>
+              <div class="post-stats">
+                  <span>👍 ${post.likes}</span>
+                  <span>💬 ${post.comments}</span>
+                  <span>👁️ ${post.views}</span>
+              </div>
+          </div>
+
+          <div class="comments-section">
+              <h3 style="margin-bottom: 20px; color: #2c3e50;">💬 评论 (${comments.length})</h3>
+
+              ${comments.length > 0 ? comments.map(comment => `
+                  <div class="comment">
+                      <div class="comment-header">
+                          <span class="comment-author">${comment.author}</span>
+                          <span class="comment-time">${comment.time}</span>
+                      </div>
+                      <div class="comment-content">${comment.content}</div>
+                  </div>
+              `).join('') : `
+                  <div class="empty-state" style="padding: 30px;">
+                      <p>暂无评论，快来发表第一条评论吧！</p>
+                  </div>
+              `}
+
+              <div class="reply-form">
+                  <h4 style="margin-bottom: 15px;">发表评论</h4>
+                  <textarea class="reply-input" placeholder="请输入您的评论..." id="commentInput"></textarea>
+                  <button class="submit-reply" onclick="submitComment(${postId})">发表评论</button>
+              </div>
+          </div>
+      `;
+
+      currentPostId = postId;
+  }
+
+  // 提交评论
+  function submitComment(postId) {
+      const input = document.getElementById('commentInput');
+      const content = input.value.trim();
+
+      if (!content) {
+          alert('请输入评论内容');
+          return;
+      }
+
+      if (!forumData.comments[postId]) {
+          forumData.comments[postId] = [];
+      }
+
+      const newComment = {
+          author: '当前用户',
+          content: content,
+          time: new Date().toLocaleString('zh-CN')
+      };
+
+      forumData.comments[postId].push(newComment);
+      input.value = '';
+
+      // 更新帖子评论数
+      const post = forumData.posts.find(p => p.id === postId);
+      post.comments += 1;
+
+      // 重新加载详情页
+      showPostDetail(postId);
+      alert('评论发表成功！');
+  }
+
+  // 切换标签页
+  function switchTab(tabType) {
+      currentTab = tabType;
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      loadPosts();
+  }
+
+  // 显示发帖表单
+  function showPostForm() {
+      alert('发帖功能开发中，当前为演示模式');
+  }
+
+  // 页面加载时初始化
+  document.addEventListener('DOMContentLoaded', initForum);
+</script>
+</body>
+</html>

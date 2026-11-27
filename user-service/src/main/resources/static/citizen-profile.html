@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页 - 智慧城市市民</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: transparent;
+            box-shadow: none;
+            min-height: 100vh;
+            border-radius: 0;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-radius: 0 0 50% 50% / 0 0 30px 30px;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin: 0 auto 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+        }
+        .user-info h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        .user-info p {
+            opacity: 0.9;
+        }
+        .nav {
+            background: #f8f9fa;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            border-bottom: 2px solid #e9ecef;
+            position: relative;
+        }
+        .nav-btn {
+            background: white;
+            color: #495057;
+            border: 2px solid #dee2e6;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+        .logout-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .content {
+            padding: 25px;
+        }
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        .stat-card.primary { border-top-color: #3498db; }
+        .stat-card.success { border-top-color: #27ae60; }
+        .stat-card.warning { border-top-color: #f39c12; }
+        .stat-card.danger { border-top-color: #e74c3c; }
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .stat-card.primary .stat-number { color: #3498db; }
+        .stat-card.success .stat-number { color: #27ae60; }
+        .stat-card.warning .stat-number { color: #f39c12; }
+        .stat-card.danger .stat-number { color: #e74c3c; }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .recent-activity {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 12px;
+            font-size: 1em;
+        }
+        .activity-info {
+            flex: 1;
+        }
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .badge-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .badge-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .badge-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .action-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .action-card:hover {
+            transform: translateY(-3px);
+        }
+        .action-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .logout-container {
+                position: static;
+                transform: none;
+                margin-top: 10px;
+            }
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .badges-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+            .badges-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="display: flex; align-items: center;">
+                <div class="avatar">👤</div>
+                <div class="user-info">
+                    <h1 id="userName">市民张先生</h1>
+                    <p id="userLevel">🏆 活跃市民 · 注册时间: 2024年10月</p>
+                    <p id="userContribution">🌟 已贡献 15 条有效报告</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <span id="currentUser">市民张先生</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <button class="nav-btn active" onclick="showSection('overview')">📊 个人概览</button>
+        <button class="nav-btn" onclick="showSection('reports')">📋 我的报告</button>
+        <button class="nav-btn" onclick="showSection('achievements')">🏆 成就徽章</button>
+        <button class="nav-btn" onclick="goBack()">⬅️ 返回首页</button>
+
+        <!-- 添加的退出按钮 -->
+        <div class="logout-container">
+            <button class="logout-btn" onclick="logout()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M7.5 1v7h1V1h-1z"/>
+                    <path d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z"/>
+                </svg>
+                退出登录
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- 个人概览 -->
+        <div id="overview-section" class="section active">
+            <div class="stats-overview">
+                <div class="stat-card primary">
+                    <div class="stat-number" id="totalReports">15</div>
+                    <div>总报告数</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-number" id="solvedRate">87%</div>
+                    <div>问题解决率</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number" id="avgResponse">2.1</div>
+                    <div>平均响应(天)</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-number" id="cityRank">156</div>
+                    <div>城市贡献排名</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>📈 月度报告趋势</h3>
+                    <canvas id="reportTrendChart" height="200"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>🎯 报告类型分布</h3>
+                    <canvas id="reportTypeChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">🕒 最近动态</h3>
+                <div id="activityList">
+                    <div class="activity-item">
+                        <div class="activity-icon">✅</div>
+                        <div class="activity-info">
+                            <div class="activity-title">报告已处理完成</div>
+                            <div class="activity-desc">您提交的"设施损坏"报告已被市政设施局处理完成</div>
+                            <div class="activity-time">2小时前</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">📝</div>
+                        <div class="activity-info">
+                            <div class="activity-title">新报告已提交</div>
+                            <div class="activity-desc">您提交了关于"交通拥堵"的新报告</div>
+                            <div class="activity-time">1天前</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="action-card" onclick="showSection('reports')">
+                    <div class="action-icon">📝</div>
+                    <h3>提交新报告</h3>
+                    <p>反馈城市问题，共建美好家园</p>
+                </div>
+                <div class="action-card" onclick="showReportHistory()">
+                    <div class="action-icon">📊</div>
+                    <h3>查看报告历史</h3>
+                    <p>查看所有提交的报告记录</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的报告 -->
+        <div id="reports-section" class="section">
+            <div class="recent-activity">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">📋 我的报告历史</h3>
+                <div id="reportsHistoryList">
+                    <!-- 报告历史列表 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 成就徽章 -->
+        <div id="achievements-section" class="section">
+            <div class="badges-grid">
+                <div class="badge-card">
+                    <div class="badge-icon">🚀</div>
+                    <div class="badge-title">初出茅庐</div>
+                    <div class="badge-desc">提交第1份报告</div>
+                    <div class="badge-status" style="color: #27ae60; margin-top: 8px;">✅ 已获得</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">📝</div>
+                    <div class="badge-title">积极市民</div>
+                    <div class="badge-desc">提交10份以上报告</div>
+                    <div class="badge-status" style="color: #27ae60; margin-top: 8px;">✅ 已获得</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">🎯</div>
+                    <div class="badge-title">问题猎手</div>
+                    <div class="badge-desc">发现5个不同类型问题</div>
+                    <div class="badge-status" style="color: #f39c12; margin-top: 8px;">🟡 进行中 (3/5)</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">💡</div>
+                    <div class="badge-title">建设者</div>
+                    <div class="badge-desc">有5份报告被采纳改进</div>
+                    <div class="badge-status" style="color: #e74c3c; margin-top: 8px;">🔴 未获得</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">🌟</div>
+                    <div class="badge-title">城市之星</div>
+                    <div class="badge-desc">连续30天活跃</div>
+                    <div class="badge-status" style="color: #f39c12; margin-top: 8px;">🟡 进行中 (15/30)</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">🏆</div>
+                    <div class="badge-title">金牌市民</div>
+                    <div class="badge-desc">获得所有基础徽章</div>
+                    <div class="badge-status" style="color: #e74c3c; margin-top: 8px;">🔴 未获得</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ✅ 删掉原来的 reports 字段，别写死
+ const userData = {
+     name: '市民张先生',
+     joinDate: '2024年10月',
+     totalReports: 0,
+     solvedRate: 0,
+     avgResponse: 0,
+     cityRank: 156,
+     reports: [] // ✅ 先空着，等后端数据
+ };
+
+async function submitFeedback(index) {
+    const report = userData.reports[index];
+    const rating = document.getElementById(`rating-${index}`).value;
+    const feedback = document.getElementById(`feedback-${index}`).value;
+
+    if (!rating) {
+        alert('请选择评分');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reportId: index + 1, // 注意：这里只是模拟 ID，你要换成真实 report.id
+                rating: rating,
+                feedback: feedback
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert('评价已提交，感谢您的反馈！');
+            loadReportsHistory(); // 刷新列表
+        } else {
+            alert('提交失败：' + result.message);
+        }
+    } catch (error) {
+        alert('网络错误，请稍后重试');
+    }
+}
+
+     // 页面加载
+     document.addEventListener('DOMContentLoaded', function() {
+         // 检查是否已登录（从主页面传递状态）
+         const urlParams = new URLSearchParams(window.location.search);
+         const isLoggedIn = urlParams.get('loggedIn') === 'true';
+         const userName = urlParams.get('user') || '市民用户';
+
+         if (!isLoggedIn) {
+             // 未登录则跳转回首页
+             alert('请先登录后再访问个人主页');
+             window.location.href = 'index.html';
+             return;
+         }
+
+         // 更新用户名为实际登录用户
+         userData.name = userName;
+         loadUserData();
+         initCharts();
+         loadReportsHistory();
+     });
+
+     // 加载用户数据
+     function loadUserData() {
+         document.getElementById('userName').textContent = userData.name;
+         document.getElementById('userLevel').textContent = `🏆 活跃市民 · 注册时间: ${userData.joinDate}`;
+         document.getElementById('userContribution').textContent = `🌟 已贡献 ${userData.totalReports} 条有效报告`;
+
+         // 更新统计数据
+         document.getElementById('totalReports').textContent = userData.totalReports;
+         document.getElementById('solvedRate').textContent = userData.solvedRate + '%';
+         document.getElementById('avgResponse').textContent = userData.avgResponse;
+         document.getElementById('cityRank').textContent = userData.cityRank;
+     }
+
+     // 初始化图表
+     function initCharts() {
+         // 月度报告趋势
+         new Chart(document.getElementById('reportTrendChart'), {
+             type: 'line',
+             data: {
+                 labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                 datasets: [{
+                     label: '报告数量',
+                     data: [2, 3, 2, 4, 2, 2],
+                     borderColor: '#3498db',
+                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                     tension: 0.4,
+                     fill: true
+                 }]
+             }
+         });
+
+         // 报告类型分布
+         new Chart(document.getElementById('reportTypeChart'), {
+             type: 'doughnut',
+             data: {
+                 labels: ['交通拥堵', '设施损坏', '噪音污染', '其他'],
+                 datasets: [{
+                     data: [45, 25, 20, 10],
+                     backgroundColor: ['#3498db', '#2ecc71', '#f39c12', '#e74c3c']
+                 }]
+             }
+         });
+     }
+
+     // 加载报告历史
+     async function loadReportsHistory() {
+    const reportsList = document.getElementById('reportsHistoryList');
+
+    try {
+        const response = await fetch('/api/reports');
+        const reports = await response.json();
+
+        // ✅ 把真实数据塞进 userData
+        userData.reports = reports.map(r => ({
+            type: r.reportType,
+            status: r.status,
+            time: r.createdTime?.split(' ')[0], // 取日期部分
+            location: r.location
+        }));
+
+        userData.totalReports = reports.length;
+
+        // ✅ 渲染列表（暂时不加评价按钮）const html = userData.reports.map((report, index) => `
+    <div class="activity-item">
+        <div class="activity-icon">${getReportIcon(report.type)}</div>
+        <div class="activity-info">
+            <div class="activity-title">${report.type}</div>
+            <div class="activity-desc">位置: ${report.location}</div>
+            <div class="activity-time">${report.time} · ${report.status}</div>
+
+            <!-- ✅ 评价模块（强制显示） -->
+            <div style="margin-top: 10px; padding: 10px; background: #e8f4fd; border-radius: 8px; font-size: 14px;">
+                <strong>请评价：</strong>
+                <select id="rating-${index}" style="margin-left: 8px; padding: 4px;">
+                    <option value="5">⭐⭐⭐⭐⭐ 非常满意</option>
+                    <option value="4">⭐⭐⭐⭐ 满意</option>
+                    <option value="3">⭐⭐⭐ 一般</option>
+                    <option value="2">⭐⭐ 不满意</option>
+                    <option value="1">⭐ 非常不满意</option>
+                </select>
+                <input type="text" id="feedback-${index}" placeholder="请输入意见..." style="margin-left: 8px; padding: 4px; width: 200px;">
+                <button onclick="submitFeedback(${index})" style="margin-left: 8px; padding: 4px 8px;">提交</button>
+            </div>
+        </div>
+    </div>
+`).join('');
+
+        reportsList.innerHTML = html;
+
+    } catch (error) {
+        reportsList.innerHTML = '<p>加载失败</p>';
+    }
+}
+
+     // 工具函数
+     function getReportIcon(type) {
+         const icons = {
+             '交通拥堵': '🚗',
+             '设施损坏': '🔧',
+             '噪音污染': '🔊',
+             '空气异味': '🌫️'
+         };
+         return icons[type] || '📝';
+     }
+
+     function showSection(section) {
+         // 隐藏所有区域
+         document.querySelectorAll('.section').forEach(sec => {
+             sec.classList.remove('active');
+         });
+
+         // 移除所有激活状态
+         document.querySelectorAll('.nav-btn').forEach(btn => {
+             btn.classList.remove('active');
+         });
+
+         // 显示目标区域
+         document.getElementById(section + '-section').classList.add('active');
+         event.target.classList.add('active');
+     }
+
+     function showReportHistory() {
+         showSection('reports');
+     }
+
+     function goBack() {
+         window.location.href = 'index.html';
+     }
+
+     function logout() {
+         if (confirm('确定要退出登录吗？')) {
+             window.location.href = 'index.html';
+         }
+     }
+</script>
+</body>
+</html>

@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政府工作台 - 智慧城市管理平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: #f5f6fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            min-height: 100vh;
+        }
+
+        /* 头部样式 */
+        .header {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 导航标签 */
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: white;
+            color: #1a237e;
+            border-bottom-color: #1a237e;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 0;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 数据看板网格 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid;
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card.primary { border-top-color: #3498db; }
+        .stat-card.success { border-top-color: #27ae60; }
+        .stat-card.warning { border-top-color: #f39c12; }
+        .stat-card.danger { border-top-color: #e74c3c; }
+
+        /* 图表容器 */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* 任务卡片 */
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .risk-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            color: white;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .risk-critical { background: #e74c3c; }
+        .risk-high { background: #e67e22; }
+        .risk-medium { background: #f39c12; }
+        .risk-low { background: #27ae60; }
+
+        /* 论坛样式 */
+        .forum-admin {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .post-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .forum-stats {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        /* 预警面板 */
+        .alert-panel {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .alert-icon {
+            font-size: 1.5em;
+        }
+
+        /* 控制栏 */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        select, input {
+            padding: 8px 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 头部 -->
+    <div class="header">
+        <div>
+            <h1>🏛️ 政府工作台</h1>
+            <p>AI智能任务分配与市民服务平台</p>
+        </div>
+        <div class="user-info">
+            <span id="currentUser">政府工作人员</span>
+            <a href="government-profile.html" class="btn">👤 个人主页</a>
+            <button class="btn" onclick="logout()">退出</button>
+        </div>
+    </div>
+
+    <!-- 导航标签 -->
+    <div class="nav-tabs">
+        <div class="tab active" onclick="switchTab('dashboard')">📊 数据看板</div>
+        <div class="tab" onclick="switchTab('tasks')">📋 任务管理</div>
+        <div class="tab" onclick="switchTab('forum')">💬 城市论坛</div>
+        <div class="tab" onclick="switchTab('analytics')">📈 统计分析</div>
+        <div class="tab" onclick="switchTab('reports')">📝 报告管理</div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 数据看板 -->
+        <div id="dashboard-tab" class="tab-content active">
+            <!-- 预警面板 -->
+            <div class="alert-panel" id="alertPanel">
+                <div class="alert-icon">⚠️</div>
+                <div>
+                    <strong>系统提醒</strong>
+                    <div id="alertMessage">当前有3个高风险任务需要处理</div>
+                </div>
+            </div>
+
+            <!-- 数据统计 -->
+            <div class="dashboard-grid">
+                <div class="stat-card primary">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div>总任务数</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-number" id="criticalTasks">0</div>
+                    <div>高风险任务</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number" id="pendingTasks">0</div>
+                    <div>待处理</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-number" id="completionRate">0%</div>
+                    <div>完成率</div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3>📈 任务类型分布</h3>
+                    <canvas id="taskTypeChart" height="200"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>⏱️ 处理时效分析</h3>
+                    <canvas id="timeAnalysisChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- 部门绩效 -->
+            <div class="chart-box">
+                <h3>🏆 部门绩效排名</h3>
+                <canvas id="departmentChart" height="150"></canvas>
+            </div>
+        </div>
+
+        <!-- 任务管理 -->
+        <div id="tasks-tab" class="tab-content">
+            <div class="controls">
+                <button class="btn-primary" onclick="loadRealTasks()">🔄 刷新</button>
+                <button class="btn-success" onclick="batchAssign()">📤 批量分配</button>
+                <select id="deptFilter">
+                    <option value="">所有部门</option>
+                    <option value="交通管理局">交通管理局</option>
+                    <option value="环境保护局">环境保护局</option>
+                    <option value="市政设施局">市政设施局</option>
+                </select>
+                <select id="riskFilter">
+                    <option value="">所有风险</option>
+                    <option value="critical">高风险</option>
+                    <option value="medium">中风险</option>
+                    <option value="low">低风险</option>
+                </select>
+                <input type="text" id="searchTasks" placeholder="🔍 搜索任务...">
+            </div>
+
+            <div id="tasksContainer">
+                <!-- 任务列表动态加载 -->
+            </div>
+        </div>
+
+        <!-- 城市论坛 -->
+        <div id="forum-tab" class="tab-content">
+            <div class="forum-admin">
+                <div>
+                    <!-- 官方发布表单 -->
+                    <div class="post-form">
+                        <h3>📢 发布官方公告</h3>
+                        <div class="form-group">
+                            <label>标题</label>
+                            <input type="text" id="postTitle" class="form-control" placeholder="请输入公告标题">
+                        </div>
+                        <div class="form-group">
+                            <label>内容</label>
+                            <textarea id="postContent" class="form-control" placeholder="请输入公告内容"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>类型</label>
+                            <select id="postType" class="form-control">
+                                <option value="official">官方发布</option>
+                                <option value="notice">通知公告</option>
+                                <option value="policy">政策解读</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="publishOfficialPost()">发布公告</button>
+                    </div>
+
+                    <!-- 论坛内容 -->
+                    <iframe src="forum.html" style="width:100%; height:600px; border:none; border-radius:10px;"></iframe>
+                </div>
+
+                <!-- 论坛统计侧边栏 -->
+                <div class="forum-stats">
+                    <h3>📊 论坛数据</h3>
+                    <div class="stat-card" style="margin-bottom:15px;">
+                        <div class="stat-number" id="todayPosts">156</div>
+                        <div>今日发帖</div>
+                    </div>
+                    <div class="stat-card" style="margin-bottom:15px;">
+                        <div class="stat-number" id="satisfactionRate">89%</div>
+                        <div>市民满意度</div>
+                    </div>
+                    <div class="stat-card" style="margin-bottom:15px;">
+                        <div class="stat-number" id="hotTopicsCount">24</div>
+                        <div>热点话题</div>
+                    </div>
+
+                    <h4 style="margin-top:20px;">🔥 热门话题</h4>
+                    <ul id="hotTopicsList" style="list-style:none; padding:0; margin-top:10px;">
+                        <!-- 热门话题动态加载 -->
+                    </ul>
+
+                    <h4 style="margin-top:20px;">📈 舆情分析</h4>
+                    <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin-top:10px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span>正面情绪</span>
+                            <span style="color:#27ae60;">65%</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span>中性情绪</span>
+                            <span style="color:#f39c12;">25%</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>负面情绪</span>
+                            <span style="color:#e74c3c;">10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计分析 -->
+        <div id="analytics-tab" class="tab-content">
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3>📅 月度趋势分析</h3>
+                    <canvas id="monthlyTrendChart" height="250"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>😊 市民情绪分析</h3>
+                    <canvas id="emotionChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>📍 区域问题热力图</h3>
+                <canvas id="heatmapChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- 报告管理 -->
+        <div id="reports-tab" class="tab-content">
+            <iframe src="report-management.html" style="width:100%; height:800px; border:none;"></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 全局变量
+    let currentTasks = [];
+    let charts = {};
+
+    // 论坛数据管理
+    const forumManager = {
+        stats: {
+            todayPosts: 156,
+            satisfaction: 89,
+            hotTopics: 24
+        },
+
+        hotTopics: [
+            { title: '交通拥堵治理方案', replies: 128, heat: 95 },
+            { title: '老旧小区改造计划', replies: 89, heat: 87 },
+            { title: '垃圾分类实施情况', replies: 76, heat: 82 },
+            { title: '城市绿化提升工程', replies: 64, heat: 78 },
+            { title: '公共设施维护建议', replies: 52, heat: 75 }
+        ],
+
+        init() {
+            this.updateStats();
+            this.renderHotTopics();
+            this.setupForumMonitoring();
+        },
+
+        updateStats() {
+            document.getElementById('todayPosts').textContent = this.stats.todayPosts;
+            document.getElementById('satisfactionRate').textContent = this.stats.satisfaction + '%';
+            document.getElementById('hotTopicsCount').textContent = this.stats.hotTopics;
+        },
+
+        renderHotTopics() {
+            const container = document.getElementById('hotTopicsList');
+            container.innerHTML = this.hotTopics.map(topic => `
+                <li style="padding:10px 0; border-bottom:1px solid #eee; cursor:pointer;"
+                    onclick="viewTopicDetail('${topic.title}')">
+                    <div style="font-weight:500;">${topic.title}</div>
+                    <div style="font-size:0.8em; color:#666; margin-top:4px;">
+                        💬 ${topic.replies} 回复 · 🔥 ${topic.heat} 热度
+                    </div>
+                </li>
+            `).join('');
+        },
+
+        setupForumMonitoring() {
+            setInterval(() => {
+                this.simulateForumActivity();
+            }, 30000);
+        },
+
+        simulateForumActivity() {
+            this.stats.todayPosts += Math.floor(Math.random() * 3);
+            this.stats.satisfaction = Math.max(70, Math.min(95,
+                this.stats.satisfaction + (Math.random() > 0.5 ? 1 : -1)
+            ));
+            this.updateStats();
+        }
+    };
+
+    // 统计分析数据
+    const analyticsData = {
+        monthlyTrend: {
+            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            reports: [125, 143, 168, 192, 156, 178, 165, 189, 176, 162, 148, 135],
+            resolved: [98, 115, 132, 156, 128, 145, 138, 152, 142, 130, 118, 105],
+            responseTime: [3.2, 2.9, 2.7, 2.4, 2.6, 2.3, 2.5, 2.2, 2.4, 2.6, 2.8, 3.0]
+        },
+        emotionAnalysis: {
+            labels: ['愤怒', '不满', '一般', '满意', '高兴'],
+            data: [15, 25, 30, 20, 10],
+            trend: [18, 28, 25, 18, 11]
+        },
+        areaHeatmap: {
+            labels: ['渝中区', '江北区', '南岸区', '沙坪坝', '九龙坡', '渝北区', '巴南区'],
+            problems: [85, 72, 65, 58, 62, 48, 35],
+            types: {
+                '交通拥堵': [45, 38, 28, 25, 32, 20, 15],
+                '设施损坏': [25, 18, 22, 15, 18, 12, 10],
+                '噪音污染': [15, 16, 15, 18, 12, 16, 10]
+            }
+        }
+    };
+
+    // 从API获取真实任务数据
+    async function loadRealTasks() {
+        try {
+            console.log("🔄 正在从API加载任务...");
+            const response = await fetch('http://localhost:8002/api/reports');
+            const reports = await response.json();
+
+            if (reports && Array.isArray(reports)) {
+                currentTasks = reports.map(report => ({
+                    id: report.id,
+                    reportType: report.reportType,
+                    location: report.location,
+                    description: report.description,
+                    emotion: report.emotion,
+                    riskLevel: report.riskLevel,
+                    riskScore: report.riskScore,
+                    assignedDepartment: report.assignedDepartment,
+                    progress: report.progress || '待受理',
+                    createdTime: report.createdTime,
+                    assignedAdmin: report.assignedAdmin
+                }));
+
+                console.log("成功加载任务:", currentTasks.length, "个");
+                renderTasks(currentTasks);
+                updateStatsFromTasks(currentTasks);
+                showAISuggestions(currentTasks);
+            } else {
+                console.error('获取任务失败: 数据格式错误');
+                loadMockTasks();
+            }
+        } catch (error) {
+            console.error('API请求失败:', error);
+            loadMockTasks();
+        }
+    }
+
+    // 备用模拟数据
+    function loadMockTasks() {
+        const mockTasks = [
+            {
+                id: 1,
+                reportType: '交通拥堵',
+                location: '渝中区解放碑',
+                description: '早晚高峰堵车严重',
+                emotion: '不满',
+                riskLevel: '高风险',
+                riskScore: 85,
+                assignedDepartment: '交通管理局',
+                progress: '处理中',
+                createdTime: new Date().toISOString()
+            },
+            {
+                id: 2,
+                reportType: '设施损坏',
+                location: '重庆移通学院',
+                description: '教学楼门损坏',
+                emotion: '一般',
+                riskLevel: '低风险',
+                riskScore: 8,
+                assignedDepartment: '教育文化局',
+                progress: '已完成',
+                createdTime: new Date().toISOString()
+            }
+        ];
+        currentTasks = mockTasks;
+        renderTasks(mockTasks);
+        updateStatsFromTasks(mockTasks);
+    }
+
+    // 接取任务
+    async function claimTask(taskId) {
+        try {
+            const response = await fetch(`http://localhost:8002/api/reports/${taskId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: '处理中',
+                    assignedAdmin: '政府工作人员'
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ 任务接取成功！');
+                loadRealTasks();
+            } else {
+                alert('❌ 接取失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('接取任务失败:', error);
+            alert('网络错误，请重试');
+        }
+    }
+
+    // 更新任务进度
+    async function updateTaskProgress(taskId, progress) {
+        try {
+            const response = await fetch(`http://localhost:8002/api/reports/${taskId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: progress
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                console.log('进度更新成功:', progress);
+                loadRealTasks();
+            } else {
+                alert('更新失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('更新进度失败:', error);
+            alert('网络错误，请重试');
+        }
+    }
+
+    // 渲染任务列表
+    function renderTasks(tasks) {
+        const container = document.getElementById('tasksContainer');
+
+        if (tasks.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px; color:#7f8c8d;">
+                    <h3>🎉 暂无待处理任务</h3>
+                    <p>所有任务都已处理完成，请等待新的市民报告</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = tasks.map(task => `
+            <div class="task-card">
+                <div class="task-header">
+                    <div>
+                        <h3>${task.reportType} #${task.id}</h3>
+                        <p style="color:#666; margin:5px 0;">📍 ${task.location}</p>
+                        <p style="color:#666; font-size:0.9em;">😊 市民情绪: ${task.emotion || '未记录'}</p>
+                    </div>
+                    <div class="risk-badge ${getRiskClass(task.riskLevel)}">
+                        ${task.riskLevel || '待分析'} ${task.riskScore ? '(' + task.riskScore + '分)' : ''}
+                    </div>
+                </div>
+
+                <p><strong>📝 问题描述:</strong> ${task.description || '暂无详细描述'}</p>
+
+                <div style="margin:15px 0; padding:10px; background:#f8f9fa; border-radius:5px;">
+                    <strong>🏛️ 分配部门:</strong> ${task.assignedDepartment || '待分配'}<br>
+                    <strong>👤 处理人员:</strong> ${task.assignedAdmin || '待接取'}<br>
+                    <strong>⏰ 上报时间:</strong> ${new Date(task.createdTime).toLocaleString('zh-CN')}
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                    <div>
+                        <strong>当前进度:</strong>
+                        <select onchange="updateTaskProgress(${task.id}, this.value)"
+                                style="margin-left:10px; padding:5px; border-radius:5px;">
+                            <option value="待受理" ${task.progress === '待受理' ? 'selected' : ''}>待受理</option>
+                            <option value="处理中" ${task.progress === '处理中' ? 'selected' : ''}>处理中</option>
+                            <option value="已完成" ${task.progress === '已完成' ? 'selected' : ''}>已完成</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        ${!task.assignedAdmin ? `
+                            <button class="btn-primary" onclick="claimTask(${task.id})">
+                                ✅ 接取任务
+                            </button>
+                        ` : `
+                            <button class="btn-success" onclick="updateTaskProgress(${task.id}, '已完成')">
+                                ✅ 标记完成
+                            </button>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 显示AI分析建议
+    function showAISuggestions(tasks) {
+        console.log("=== AI分析建议 ===");
+        tasks.forEach(task => {
+            if (task.riskLevel && task.riskScore) {
+                console.log(`任务 #${task.id}: ${task.riskLevel} (${task.riskScore}分)`);
+            }
+        });
+    }
+
+    // 从任务数据更新统计
+    function updateStatsFromTasks(tasks) {
+        const total = tasks.length;
+        const critical = tasks.filter(t => t.riskLevel && t.riskLevel.includes('高风险')).length;
+        const pending = tasks.filter(t => t.progress === '待受理' || t.progress === '处理中').length;
+        const completed = tasks.filter(t => t.progress === '已完成').length;
+        const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        updateStats({
+            total: total,
+            critical: critical,
+            pending: pending,
+            completionRate: completionRate + '%'
+        });
+    }
+
+    // 更新统计数据
+    function updateStats(data) {
+        document.getElementById('totalTasks').textContent = data.total;
+        document.getElementById('criticalTasks').textContent = data.critical;
+        document.getElementById('pendingTasks').textContent = data.pending;
+        document.getElementById('completionRate').textContent = data.completionRate;
+    }
+
+    // 发布官方公告
+    function publishOfficialPost() {
+        const title = document.getElementById('postTitle').value;
+        const content = document.getElementById('postContent').value;
+        const type = document.getElementById('postType').value;
+
+        if (!title || !content) {
+            alert('请填写标题和内容');
+            return;
+        }
+
+        alert('公告发布成功！');
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postContent').value = '';
+    }
+
+    // 查看话题详情
+    function viewTopicDetail(topicTitle) {
+        alert(`查看话题详情: ${topicTitle}\n\n此功能可进一步开发话题分析面板`);
+    }
+
+    // 初始化图表
+    function initCharts() {
+        if (charts.taskType) charts.taskType.destroy();
+        if (charts.timeAnalysis) charts.timeAnalysis.destroy();
+        if (charts.department) charts.department.destroy();
+
+        charts.taskType = new Chart(document.getElementById('taskTypeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['交通拥堵', '设施损坏', '噪音污染', '其他'],
+                datasets: [{
+                    data: [45, 25, 20, 10],
+                    backgroundColor: ['#3498db', '#2ecc71', '#f39c12', '#e74c3c']
+                }]
+            }
+        });
+
+        charts.timeAnalysis = new Chart(document.getElementById('timeAnalysisChart'), {
+            type: 'bar',
+            data: {
+                labels: ['<2小时', '2-8小时', '8-24小时', '>24小时'],
+                datasets: [{
+                    label: '任务数量',
+                    data: [15, 8, 3, 2],
+                    backgroundColor: '#27ae60'
+                }]
+            }
+        });
+
+        charts.department = new Chart(document.getElementById('departmentChart'), {
+            type: 'bar',
+            data: {
+                labels: ['交通局', '环保局', '市政局', '城管局', '教育局'],
+                datasets: [{
+                    label: '处理效率',
+                    data: [92, 88, 85, 78, 82],
+                    backgroundColor: '#3498db'
+                }]
+            }
+        });
+    }
+
+    // 统计分析图表
+    function initAnalytics() {
+        if (charts.monthlyTrend) charts.monthlyTrend.destroy();
+        if (charts.emotion) charts.emotion.destroy();
+        if (charts.heatmap) charts.heatmap.destroy();
+
+        renderMonthlyTrendChart();
+        renderEmotionChart();
+        renderHeatmapChart();
+    }
+
+    function renderMonthlyTrendChart() {
+        const ctx = document.getElementById('monthlyTrendChart');
+        if (!ctx) return;
+
+        charts.monthlyTrend = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: analyticsData.monthlyTrend.labels,
+                datasets: [
+                    {
+                        label: '总报告数',
+                        data: analyticsData.monthlyTrend.reports,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: '已解决数',
+                        data: analyticsData.monthlyTrend.resolved,
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            }
+        });
+    }
+
+    function renderEmotionChart() {
+        const ctx = document.getElementById('emotionChart');
+        if (!ctx) return;
+
+        charts.emotion = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: analyticsData.emotionAnalysis.labels,
+                datasets: [{
+                    label: '本月',
+                    data: analyticsData.emotionAnalysis.data,
+                    backgroundColor: ['#e74c3c', '#e67e22', '#f39c12', '#2ecc71', '#27ae60']
+                }]
+            }
+        });
+    }
+
+    function renderHeatmapChart() {
+        const ctx = document.getElementById('heatmapChart');
+        if (!ctx) return;
+
+        charts.heatmap = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: analyticsData.areaHeatmap.labels,
+                datasets: [
+                    {
+                        label: '交通拥堵',
+                        data: analyticsData.areaHeatmap.types['交通拥堵'],
+                        backgroundColor: '#e74c3c'
+                    },
+                    {
+                        label: '设施损坏',
+                        data: analyticsData.areaHeatmap.types['设施损坏'],
+                        backgroundColor: '#3498db'
+                    },
+                    {
+                        label: '噪音污染',
+                        data: analyticsData.areaHeatmap.types['噪音污染'],
+                        backgroundColor: '#f39c12'
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true }
+                }
+            }
+        });
+    }
+
+    // 加载统计分析数据
+    function loadAnalytics() {
+        console.log('加载统计分析数据...');
+        initAnalytics();
+    }
+
+    // 销毁所有图表
+    function destroyAllCharts() {
+        Object.values(charts).forEach(chart => {
+            if (chart && typeof chart.destroy === 'function') {
+                chart.destroy();
+            }
+        });
+        charts = {};
+    }
+
+    // 切换标签页
+    function switchTab(tabName) {
+        destroyAllCharts();
+
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        document.getElementById(tabName + '-tab').classList.add('active');
+        event.target.classList.add('active');
+
+        switch(tabName) {
+            case 'dashboard':
+                loadDashboardData();
+                initCharts();
+                break;
+            case 'tasks':
+                loadRealTasks();
+                break;
+            case 'analytics':
+                loadAnalytics();
+                break;
+        }
+    }
+
+    // 加载仪表盘数据
+    function loadDashboardData() {
+        updateStats({
+            total: 28,
+            critical: 3,
+            pending: 8,
+            completionRate: '78%'
+        });
+    }
+
+    // 工具函数
+    function getRiskClass(riskLevel) {
+        if (!riskLevel) return 'risk-low';
+        if (riskLevel.includes('高')) return 'risk-high';
+        if (riskLevel.includes('中')) return 'risk-medium';
+        return 'risk-low';
+    }
+
+    function batchAssign() {
+        alert('批量分配功能开发中');
+    }
+
+    function logout() {
+        if (confirm('确定要退出吗？')) {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // 页面加载初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+        loadRealTasks();
+        initCharts();
+        forumManager.init();
+    });
+</script>
+</body>
+</html>

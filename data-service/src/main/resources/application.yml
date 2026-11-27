@@ -1,0 +1,16 @@
+server:
+  port: 8004
+
+spring:
+  application:
+    name: data-service
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+
+logging:
+  level:
+    com.zhao.data: DEBUG

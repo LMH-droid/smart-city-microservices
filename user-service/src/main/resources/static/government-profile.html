@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人工作台 - 政府工作人员</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a237e, #283593);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            min-height: 100vh;
+            border-radius: 0 0 15px 15px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0d47a1, #1565c0);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 0 0 50% 50% / 0 0 30px 30px;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid white;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+        }
+        .user-info h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .user-info p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .nav {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .nav-btn {
+            background: white;
+            color: #495057;
+            border: 2px solid #dee2e6;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: #0d47a1;
+            color: white;
+            border-color: #0d47a1;
+            transform: translateY(-2px);
+        }
+        .content {
+            padding: 30px;
+        }
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-top: 5px solid;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card.primary { border-top-color: #3498db; }
+        .stat-card.success { border-top-color: #27ae60; }
+        .stat-card.warning { border-top-color: #f39c12; }
+        .stat-card.danger { border-top-color: #e74c3c; }
+        .stat-number {
+            font-size: 2.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .stat-card.primary .stat-number { color: #3498db; }
+        .stat-card.success .stat-number { color: #27ae60; }
+        .stat-card.warning .stat-number { color: #f39c12; }
+        .stat-card.danger .stat-number { color: #e74c3c; }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .chart-container h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+        .recent-tasks {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: background 0.3s;
+        }
+        .task-item:hover {
+            background: #f8f9fa;
+        }
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+        .task-info {
+            flex: 1;
+        }
+        .task-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .task-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .task-status {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-progress { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .performance-badges {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .badge-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .badge-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .badge-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .badge-desc {
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .action-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .action-card:hover {
+            transform: translateY(-3px);
+        }
+        .action-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="avatar">👨‍💼</div>
+        <div class="user-info">
+            <h1 id="userName">王科长</h1>
+            <p id="userDept">交通管理局 · 高级主管</p>
+            <p id="userBadge">🏆 本月绩效之星</p>
+        </div>
+    </div>
+
+    <div class="nav">
+        <button class="nav-btn active" onclick="showSection('overview')">📊 工作概览</button>
+        <button class="nav-btn" onclick="showSection('tasks')">📋 我的任务</button>
+        <button class="nav-btn" onclick="showSection('performance')">🏆 绩效分析</button>
+        <button class="nav-btn" onclick="goToWorkbench()">🏛️ 返回工作台</button>
+    </div>
+
+    <div class="content">
+        <!-- 工作概览 -->
+        <div id="overview-section" class="section">
+            <div class="stats-overview">
+                <div class="stat-card primary">
+                    <div class="stat-number" id="totalHandled">28</div>
+                    <div>本月处理任务</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-number" id="completionRate">92%</div>
+                    <div>任务完成率</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number" id="avgTime">2.3</div>
+                    <div>平均处理时长(天)</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-number" id="criticalTasks">5</div>
+                    <div>重大风险处理</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>📈 任务处理趋势</h3>
+                    <canvas id="taskTrendChart" height="250"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>🎯 问题类型分布</h3>
+                    <canvas id="taskTypeChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <div class="recent-tasks">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">🕒 最近任务</h3>
+                <div id="recentTasksList">
+                    <!-- 任务列表由JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="action-card" onclick="goToWorkbench()">
+                    <div class="action-icon">📥</div>
+                    <h3>接取新任务</h3>
+                    <p>查看并接取待处理任务</p>
+                </div>
+                <div class="action-card" onclick="showSection('performance')">
+                    <div class="action-icon">📊</div>
+                    <h3>查看绩效</h3>
+                    <p>查看详细绩效分析报告</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的任务 -->
+        <div id="tasks-section" class="section" style="display: none;">
+            <div class="recent-tasks">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">📋 我的任务列表</h3>
+                <div id="myTasksList">
+                    <!-- 我的任务列表 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 绩效分析 -->
+        <div id="performance-section" class="section" style="display: none;">
+            <div class="stats-overview">
+                <div class="stat-card primary">
+                    <div class="stat-number" id="performanceScore">96</div>
+                    <div>绩效分数</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-number" id="departmentRank">3</div>
+                    <div>部门排名</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-number" id="efficiency">118%</div>
+                    <div>工作效率</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-number" id="satisfaction">94%</div>
+                    <div>市民满意度</div>
+                </div>
+            </div>
+
+            <div class="performance-badges">
+                <div class="badge-card">
+                    <div class="badge-icon">⚡</div>
+                    <div class="badge-title">快速响应者</div>
+                    <div class="badge-desc">平均响应时间低于2小时，处理效率优秀</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">🎯</div>
+                    <div class="badge-title">问题解决专家</div>
+                    <div class="badge-desc">复杂问题解决率达到95%以上</div>
+                </div>
+                <div class="badge-card">
+                    <div class="badge-icon">💫</div>
+                    <div class="badge-title">五星服务</div>
+                    <div class="badge-desc">连续三个月市民满意度超过90%</div>
+                </div>
+            </div>
+
+            <div class="chart-container" style="margin-top: 30px;">
+                <h3>📊 月度绩效趋势</h3>
+                <canvas id="performanceChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 模拟数据
+    const userData = {
+        name: '王科长',
+        department: '交通管理局',
+        position: '高级主管',
+        stats: {
+            totalHandled: 28,
+            completionRate: 92,
+            avgTime: 2.3,
+            criticalTasks: 5,
+            performanceScore: 96,
+            departmentRank: 3,
+            efficiency: 118,
+            satisfaction: 94
+        },
+        recentTasks: [
+            { id: 1, type: '交通拥堵', location: '渝中区解放碑', status: 'completed', time: '2小时前', score: 85 },
+            { id: 2, type: '违章停车', location: '江北区观音桥', status: 'progress', time: '5小时前', score: 72 },
+            { id: 3, type: '信号灯故障', location: '南岸区南坪', status: 'completed', time: '1天前', score: 90 },
+            { id: 4, type: '道路施工', location: '沙坪坝区', status: 'pending', time: '2天前', score: 65 }
+        ]
+    };
+
+    // 页面加载
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUserData();
+        initCharts();
+        loadRecentTasks();
+    });
+
+    // 加载用户数据
+    function loadUserData() {
+        document.getElementById('userName').textContent = userData.name;
+        document.getElementById('userDept').textContent = `${userData.department} · ${userData.position}`;
+
+        // 更新统计数据
+        Object.keys(userData.stats).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) {
+                element.textContent = userData.stats[key];
+            }
+        });
+    }
+
+    // 初始化图表
+    function initCharts() {
+        // 任务处理趋势图
+        new Chart(document.getElementById('taskTrendChart'), {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '处理任务数',
+                    data: [18, 22, 25, 28, 26, 28],
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            }
+        });
+
+        // 任务类型分布图
+        new Chart(document.getElementById('taskTypeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['交通拥堵', '违章停车', '设施故障', '其他'],
+                datasets: [{
+                    data: [45, 25, 20, 10],
+                    backgroundColor: ['#3498db', '#2ecc71', '#f39c12', '#e74c3c']
+                }]
+            }
+        });
+
+        // 绩效趋势图
+        new Chart(document.getElementById('performanceChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '绩效分数',
+                    data: [88, 92, 89, 94, 96, 96],
+                    backgroundColor: '#27ae60'
+                }]
+            }
+        });
+    }
+
+    // 加载最近任务
+    function loadRecentTasks() {
+        const tasksList = document.getElementById('recentTasksList');
+        const myTasksList = document.getElementById('myTasksList');
+
+        tasksList.innerHTML = userData.recentTasks.map(task => `
+            <div class="task-item">
+                <div class="task-icon">${getTaskIcon(task.type)}</div>
+                <div class="task-info">
+                    <div class="task-title">${task.type}</div>
+                    <div class="task-meta">${task.location} · ${task.time} · 风险评分: ${task.score}</div>
+                </div>
+                <div class="task-status ${getStatusClass(task.status)}">
+                    ${getStatusText(task.status)}
+                </div>
+            </div>
+        `).join('');
+
+        myTasksList.innerHTML = userData.recentTasks.map(task => `
+            <div class="task-item">
+                <div class="task-icon">${getTaskIcon(task.type)}</div>
+                <div class="task-info">
+                    <div class="task-title">${task.type}</div>
+                    <div class="task-meta">${task.location} · ${task.time} · 风险评分: ${task.score}</div>
+                </div>
+                <div class="task-status ${getStatusClass(task.status)}">
+                    ${getStatusText(task.status)}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 工具函数
+    function getTaskIcon(type) {
+        const icons = {
+            '交通拥堵': '🚗',
+            '违章停车': '🅿️',
+            '信号灯故障': '🚦',
+            '道路施工': '🚧',
+            '设施故障': '🔧'
+        };
+        return icons[type] || '📋';
+    }
+
+    function getStatusClass(status) {
+        return `status-${status}`;
+    }
+
+    function getStatusText(status) {
+        const texts = {
+            'pending': '待处理',
+            'progress': '处理中',
+            'completed': '已完成'
+        };
+        return texts[status] || status;
+    }
+
+    function showSection(section) {
+        // 隐藏所有区域
+        document.querySelectorAll('.section').forEach(sec => {
+            sec.style.display = 'none';
+        });
+
+        // 移除所有激活状态
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // 显示目标区域
+        document.getElementById(section + '-section').style.display = 'block';
+        event.target.classList.add('active');
+    }
+
+    function goToWorkbench() {
+        window.location.href = 'government.html';
+    }
+</script>
+</body>
+</html>
